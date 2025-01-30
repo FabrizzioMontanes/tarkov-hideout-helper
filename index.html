@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape from Tarkov - Hideout Helper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            padding: 20px;
+        }
+        select, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        #items-list {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hideout Helper - Gerador</h1>
+    <label for="current-level">Nível atual do gerador:</label>
+    <select id="current-level">
+        <option value="0">Nível 0</option>
+        <option value="1">Nível 1</option>
+        <option value="2">Nível 2</option>
+    </select>
+    <button onclick="mostrarItens()">Mostrar Itens Necessários</button>
+
+    <div id="items-list"></div>
+
+    <script>
+        const geradorRequisitos = {
+            0: {
+                roubles: 100000,
+                itens: ["1 Spark plug"],
+                requisitos: ["Level 1 Security"]
+            },
+            1: {
+                itens: [
+                    "1 Bulbex cable cutter",
+                    "5 Phase control relay",
+                    "1 Electric motor",
+                    "15 Bundle of wires"
+                ],
+                requisitos: ["Level 2 Security", "Level 2 Vents"]
+            },
+            2: {
+                itens: [], // Adicione os itens para o próximo nível, se houver
+                requisitos: [] // Adicione os requisitos para o próximo nível, se houver
+            }
+        };
+
+        function mostrarItens() {
+            const nivelAtual = document.getElementById("current-level").value;
+            const itemsList = document.getElementById("items-list");
+            itemsList.innerHTML = ""; // Limpa a lista anterior
+
+            if (geradorRequisitos[nivelAtual]) {
+                const { roubles, itens, requisitos } = geradorRequisitos[nivelAtual];
+
+                if (roubles) {
+                    const roublesItem = document.createElement("p");
+                    roublesItem.textContent = `💰 ${roubles.toLocaleString()} Roubles`;
+                    itemsList.appendChild(roublesItem);
+                }
+
+                if (itens.length > 0) {
+                    const itensTitle = document.createElement("h3");
+                    itensTitle.textContent = "Itens Necessários:";
+                    itemsList.appendChild(itensTitle);
+
+                    itens.forEach(item => {
+                        const itemElement = document.createElement("p");
+                        itemElement.textContent = `✔️ ${item}`;
+                        itemsList.appendChild(itemElement);
+                    });
+                }
+
+                if (requisitos.length > 0) {
+                    const requisitosTitle = document.createElement("h3");
+                    requisitosTitle.textContent = "Requisitos:";
+                    itemsList.appendChild(requisitosTitle);
+
+                    requisitos.forEach(req => {
+                        const reqElement = document.createElement("p");
+                        reqElement.textContent = `🔒 ${req}`;
+                        itemsList.appendChild(reqElement);
+                    });
+                }
+            } else {
+                itemsList.textContent = "Nenhum item necessário para o próximo nível.";
+            }
+        }
+    </script>
+</body>
+</html>
