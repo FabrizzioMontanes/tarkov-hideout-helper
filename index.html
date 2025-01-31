@@ -5,35 +5,236 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escape from Tarkov - Hideout Helper</title>
     <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilo do body com imagem de fundo */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #fff;
+            font-family: 'Arial', sans-serif;
+            color: #fff; /* Texto branco para contrastar com o fundo */
+            line-height: 1.6;
             padding: 20px;
+            background-image: url('https://images5.alphacoders.com/132/1322746.jpeg');
+            background-size: cover; /* Cobrir toda a tela */
+            background-position: center; /* Centralizar a imagem */
+            background-attachment: fixed; /* Fixar o fundo ao rolar a página */
+            min-height: 100vh; /* Garantir que o body ocupe toda a altura da tela */
         }
+
+        /* Overlay escuro para melhorar a legibilidade */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6); /* Overlay preto com 60% de opacidade */
+            z-index: -1; /* Coloca o overlay atrás do conteúdo */
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9); /* Fundo branco com transparência */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #333; /* Texto escuro para o conteúdo */
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        /* Estilo do seletor e botão */
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
         select, button {
-            padding: 10px;
-            margin: 5px;
+            padding: 10px 15px;
             font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
         }
+
+        select {
+            width: 200px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Estilo da lista de itens */
         #items-list {
             margin-top: 20px;
+        }
+
+        .item-card {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .item-card p {
+            margin: 5px 0;
+            color: #34495e;
+        }
+
+        .item-card p::before {
+            content: "✔️";
+            margin-right: 10px;
+            color: #27ae60;
+        }
+
+        .requisitos {
+            color: #e67e22;
+        }
+
+        .requisitos::before {
+            content: "🔒";
+            margin-right: 10px;
+        }
+
+        /* Rodapé */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Botão de idioma */
+        .language-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .language-switcher button {
+            background: none;
+            border: none;
+            color: #3498db;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .language-switcher button:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h1>Hideout Helper - Gerador</h1>
-    <label for="current-level">Nível atual do gerador:</label>
-    <select id="current-level">
-        <option value="0">Nível 0</option>
-        <option value="1">Nível 1</option>
-        <option value="2">Nível 2</option>
-    </select>
-    <button onclick="mostrarItens()">Mostrar Itens Necessários</button>
+    <div class="container">
+        <!-- Botão de troca de idioma -->
+        <div class="language-switcher">
+            <button onclick="changeLanguage('pt')">Português</button>
+            <button onclick="changeLanguage('en')">English</button>
+        </div>
 
-    <div id="items-list"></div>
+        <h1 id="title">Hideout Helper - Gerador</h1>
+        <div class="input-group">
+            <label for="current-level" id="level-label">Nível atual do gerador:</label>
+            <select id="current-level">
+                <option value="0">Nível 0</option>
+                <option value="1">Nível 1</option>
+                <option value="2">Nível 2</option>
+            </select>
+            <button onclick="mostrarItens()" id="show-items-button">Mostrar Itens Necessários</button>
+        </div>
+
+        <div id="items-list"></div>
+    </div>
+
+    <footer>
+        <span id="footer-text">Criado por <a href="#" target="_blank">Fabrizzio Montanes</a> para a comunidade de Escape from Tarkov.</span>
+    </footer>
 
     <script>
+        // Textos em português e inglês
+        const translations = {
+            pt: {
+                title: "Hideout Helper - Gerador",
+                levelLabel: "Nível atual do gerador:",
+                showItemsButton: "Mostrar Itens Necessários",
+                roublesTitle: "Roubles Necessários",
+                itemsTitle: "Itens Necessários",
+                requisitosTitle: "Requisitos",
+                noItems: "Nenhum item necessário para o próximo nível.",
+                footerText: "Criado por <a href='#' target='_blank'>Fabrizzio Montanes</a> para a comunidade de Escape from Tarkov."
+            },
+            en: {
+                title: "Hideout Helper - Generator",
+                levelLabel: "Current generator level:",
+                showItemsButton: "Show Required Items",
+                roublesTitle: "Required Roubles",
+                itemsTitle: "Required Items",
+                requisitosTitle: "Requirements",
+                noItems: "No items required for the next level.",
+                footerText: "Created by <a href='#' target='_blank'>Your Name</a> for the Escape from Tarkov community."
+            }
+        };
+
+        // Função para trocar o idioma
+        function changeLanguage(lang) {
+            const elements = {
+                title: document.getElementById("title"),
+                levelLabel: document.getElementById("level-label"),
+                showItemsButton: document.getElementById("show-items-button"),
+                footerText: document.getElementById("footer-text")
+            };
+
+            // Atualiza os textos com base no idioma selecionado
+            elements.title.textContent = translations[lang].title;
+            elements.levelLabel.textContent = translations[lang].levelLabel;
+            elements.showItemsButton.textContent = translations[lang].showItemsButton;
+            elements.footerText.innerHTML = translations[lang].footerText;
+
+            // Atualiza os itens exibidos (se houver)
+            if (document.getElementById("current-level").value !== "") {
+                mostrarItens();
+            }
+        }
+
+        // Dados dos itens necessários
         const geradorRequisitos = {
             0: {
                 roubles: 100000,
@@ -55,6 +256,7 @@
             }
         };
 
+        // Função para mostrar os itens necessários
         function mostrarItens() {
             const nivelAtual = document.getElementById("current-level").value;
             const itemsList = document.getElementById("items-list");
@@ -64,38 +266,45 @@
                 const { roubles, itens, requisitos } = geradorRequisitos[nivelAtual];
 
                 if (roubles) {
-                    const roublesItem = document.createElement("p");
-                    roublesItem.textContent = `💰 ${roubles.toLocaleString()} Roubles`;
+                    const roublesItem = document.createElement("div");
+                    roublesItem.className = "item-card";
+                    roublesItem.innerHTML = `
+                        <h3>${translations[document.documentElement.lang].roublesTitle}</h3>
+                        <p>💰 ${roubles.toLocaleString()} Roubles</p>
+                    `;
                     itemsList.appendChild(roublesItem);
                 }
 
                 if (itens.length > 0) {
-                    const itensTitle = document.createElement("h3");
-                    itensTitle.textContent = "Itens Necessários:";
-                    itemsList.appendChild(itensTitle);
-
-                    itens.forEach(item => {
-                        const itemElement = document.createElement("p");
-                        itemElement.textContent = `✔️ ${item}`;
-                        itemsList.appendChild(itemElement);
-                    });
+                    const itensCard = document.createElement("div");
+                    itensCard.className = "item-card";
+                    itensCard.innerHTML = `
+                        <h3>${translations[document.documentElement.lang].itemsTitle}</h3>
+                        ${itens.map(item => `<p>${item}</p>`).join("")}
+                    `;
+                    itemsList.appendChild(itensCard);
                 }
 
                 if (requisitos.length > 0) {
-                    const requisitosTitle = document.createElement("h3");
-                    requisitosTitle.textContent = "Requisitos:";
-                    itemsList.appendChild(requisitosTitle);
-
-                    requisitos.forEach(req => {
-                        const reqElement = document.createElement("p");
-                        reqElement.textContent = `🔒 ${req}`;
-                        itemsList.appendChild(reqElement);
-                    });
+                    const requisitosCard = document.createElement("div");
+                    requisitosCard.className = "item-card";
+                    requisitosCard.innerHTML = `
+                        <h3>${translations[document.documentElement.lang].requisitosTitle}</h3>
+                        ${requisitos.map(req => `<p class="requisitos">${req}</p>`).join("")}
+                    `;
+                    itemsList.appendChild(requisitosCard);
                 }
             } else {
-                itemsList.textContent = "Nenhum item necessário para o próximo nível.";
+                itemsList.innerHTML = `
+                    <div class="item-card">
+                        <p>${translations[document.documentElement.lang].noItems}</p>
+                    </div>
+                `;
             }
         }
+
+        // Define o idioma padrão como português
+        document.documentElement.lang = "pt";
     </script>
 </body>
 </html>
